@@ -4,6 +4,8 @@ using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using Reactor;
 using Reactor.Utilities;
+using Rewired;
+using Sentry.Protocol;
 using System.IO;
 
 namespace AmongUsAI;
@@ -30,7 +32,12 @@ public partial class Plugin : BasePlugin
     {
         public static void Postfix(PlayerControl __instance)
         {
-            File.WriteAllText("inGameData2.txt", __instance.CanMove.ToString());
+            string file = "sendData2.txt";
+            if (__instance.name.Equals("AmongUsAI"))
+            {
+                File.WriteAllText("inGameData.txt", __instance.CanMove ? "1" : "0");
+                File.WriteAllText(file, __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString());
+            }
         }
     }
 }
