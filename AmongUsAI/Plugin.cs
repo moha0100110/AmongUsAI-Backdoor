@@ -1,12 +1,18 @@
 ﻿using AmongUs.Data.Player;
 using AmongUs.Data.Settings;
+using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
+using Discord;
+using GameCore;
 using HarmonyLib;
+using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.Runtime;
 using Il2CppSystem;
 using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Configuration;
+using InnerNet;
 using Reactor;
 using Reactor.Utilities;
 using Rewired;
@@ -36,6 +42,7 @@ public partial class Plugin : BasePlugin
     }
 
     public static MapType map;
+    public static bool inMeeting = false;
 
     public override void Load()
     {
@@ -44,6 +51,7 @@ public partial class Plugin : BasePlugin
         Harmony.PatchAll();
     }
 
+    // MAPS
     // Skeld and HQ
     [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
     public static class ShipStatusUpdate
@@ -54,6 +62,7 @@ public partial class Plugin : BasePlugin
         }
     }
 
+    // Polus
     [HarmonyPatch(typeof(PolusShipStatus), nameof(PolusShipStatus.OnEnable))]
     public static class PolusShipStatusUpdate
     {
@@ -63,12 +72,53 @@ public partial class Plugin : BasePlugin
         }
     }
 
+    // Airship
     [HarmonyPatch(typeof(AirshipStatus), nameof(AirshipStatus.OnEnable))]
     public static class AirshipStatusUpdate
     {
         public static void Prefix(AirshipStatus __instance)
         {
             map = MapType.Airship;
+        }
+    }
+
+    // MEETING UPDATE
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Awake))]
+    public static class MeetingOpenUpdate
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            inMeeting = true;
+        }
+        
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Close))]
+    public static class MeetingCloseUpdate
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            inMeeting = false;
+        }
+
+    }
+
+    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Update))]
+    public static class ClientUpdate
+    {
+        public static void Postfix(InnerNetClient __instance)
+        {
+            if (!(__instance.GameState == InnerNetClient.GameStates.Started || __instance.GameState == InnerNetClient.GameStates.Joined))
+            { 
+                // Game is over
+                inMeeting = false;
+            }
+
+            if (__instance.GameState == InnerNetClient.GameStates.Ended)
+            {
+                // No longer in game
+                File.WriteAllText("inGameData.txt", "0");
+            }
         }
     }
 
@@ -79,10 +129,10 @@ public partial class Plugin : BasePlugin
         {
             string file = "sendData2.txt";
             bool areLightsOff = false;
+
+            // Local Player
             if (__instance == PlayerControl.LocalPlayer)
             {
-
-
                 // Is in game?
                 File.WriteAllText("inGameData.txt", __instance.CanMove ? "1" : "0");
 
@@ -90,7 +140,7 @@ public partial class Plugin : BasePlugin
                 File.WriteAllText(file, __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString() + "\n");
 
                 // Role
-                File.AppendAllText(file, isImposter(__instance) ? "impostor\n" : "crewmate\n");
+                File.AppendAllText(file, isPlayerImposter(__instance.Data) ? "impostor\n" : "crewmate\n");
 
                 var currentTasks = __instance.myTasks.ToArray();
 
@@ -137,19 +187,34 @@ public partial class Plugin : BasePlugin
                 File.AppendAllText(file, "]");
                 addNewLine(file);
 
+                // Map ID
                 File.AppendAllText(file, map.ToString());
+                addNewLine(file);
 
+                //Is dead?
+                File.AppendAllText(file, __instance.Data.IsDead ? "1" : "0");
+                addNewLine(file);
+
+                // In meeting
+                File.AppendAllText(file, inMeeting ? "1" : "0");
+                addNewLine(file);
+
+                // Player Speed - Can hardcode to 1 or 1.5x
+                //File.AppendAllText(file, FloatOptionNames.PlayerSpeedMod + "\n");
+
+                // Player color
+                File.AppendAllText(file, __instance.CurrentOutfit.ColorId + "\n");
+
+                // Room - annoying
+
+                // Lights
+                File.AppendAllText(file, areLightsOff ? "1" : "0");
             }
         }
 
         public static void addNewLine(string file)
         {
             File.AppendAllText(file, "\n");
-        }
-
-        public static bool isImposter(PlayerControl player)
-        {
-            return player.Data.Role.name[0] == 'I';
         }
 
         public static string TranslateTaskTypes(TaskTypes type)
@@ -178,7 +243,31 @@ public partial class Plugin : BasePlugin
             return LOC_TRANSLATIONS[i];
         }
 
+        public static List<PlayerControl> GetAllPlayerControls()
+        {
+            return PlayerControl.AllPlayerControls;
+        }
 
+        public static List<GameData.PlayerInfo> GetAllPlayerData()
+        {
+            List<GameData.PlayerInfo> playerDatas = new List<GameData.PlayerInfo>();
+
+            var playerControls = GetAllPlayerControls();
+            foreach (PlayerControl playerControl in playerControls)
+            {
+                playerDatas.Add(playerControl.Data);
+            }
+
+            return playerDatas;
+        }
+
+        public static bool isPlayerImposter(GameData.PlayerInfo playerInfo)
+        {
+            if (playerInfo.Role == null) return false;
+            RoleBehaviour role = playerInfo.Role;
+
+            return role.TeamType == RoleTeamTypes.Impostor;
+        }
 
     }
 
