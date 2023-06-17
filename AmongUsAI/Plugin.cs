@@ -1,16 +1,19 @@
 ﻿using AmongUs.Data.Player;
+using AmongUs.Data.Settings;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
 using HarmonyLib;
 using Il2CppSystem;
 using Il2CppSystem.Collections.Generic;
+using Il2CppSystem.Configuration;
 using Reactor;
 using Reactor.Utilities;
 using Rewired;
 using Sentry.Protocol;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 using xCloud;
 
 namespace AmongUsAI;
@@ -24,6 +27,16 @@ public partial class Plugin : BasePlugin
 
     public ConfigEntry<string> ConfigName { get; private set; }
 
+    public enum MapType : int
+    {
+        Ship = 0,
+        Hq = 1,
+        Pb = 2,
+        Airship = 3
+    }
+
+    public static MapType map;
+
     public override void Load()
     {
         ConfigName = Config.Bind("Fake", "Name", ":>");
@@ -31,6 +44,33 @@ public partial class Plugin : BasePlugin
         Harmony.PatchAll();
     }
 
+    // Skeld and HQ
+    [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.OnEnable))]
+    public static class ShipStatusUpdate
+    {
+        public static void Prefix(ShipStatus __instance)
+        {
+            map = (MapType)__instance.Type;
+        }
+    }
+
+    [HarmonyPatch(typeof(PolusShipStatus), nameof(PolusShipStatus.OnEnable))]
+    public static class PolusShipStatusUpdate
+    {
+        public static void Prefix(PolusShipStatus __instance)
+        {
+            map = MapType.Pb;
+        }
+    }
+
+    [HarmonyPatch(typeof(AirshipStatus), nameof(AirshipStatus.OnEnable))]
+    public static class AirshipStatusUpdate
+    {
+        public static void Prefix(AirshipStatus __instance)
+        {
+            map = MapType.Airship;
+        }
+    }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class Data_Pipe_Patch
@@ -97,6 +137,7 @@ public partial class Plugin : BasePlugin
                 File.AppendAllText(file, "]");
                 addNewLine(file);
 
+                File.AppendAllText(file, map.ToString());
 
             }
         }
