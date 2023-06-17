@@ -17,6 +17,7 @@ using Reactor;
 using Reactor.Utilities;
 using Rewired;
 using Sentry.Protocol;
+using System;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -129,6 +130,7 @@ public partial class Plugin : BasePlugin
         {
             string file = "sendData2.txt";
             bool areLightsOff = false;
+            bool imposter = isPlayerImposter(PlayerControl.LocalPlayer.Data);
 
             // Local Player
             if (__instance == PlayerControl.LocalPlayer)
@@ -140,7 +142,7 @@ public partial class Plugin : BasePlugin
                 File.WriteAllText(file, __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString() + "\n");
 
                 // Role
-                File.AppendAllText(file, isPlayerImposter(__instance.Data) ? "impostor\n" : "crewmate\n");
+                File.AppendAllText(file, imposter ? "impostor\n" : "crewmate\n");
 
                 var currentTasks = __instance.myTasks.ToArray();
 
@@ -199,8 +201,9 @@ public partial class Plugin : BasePlugin
                 File.AppendAllText(file, inMeeting ? "1" : "0");
                 addNewLine(file);
 
-                // Player Speed - Can hardcode to 1 or 1.5x
+                // Player Speed - hardcoded to 1.5x
                 //File.AppendAllText(file, FloatOptionNames.PlayerSpeedMod + "\n");
+                File.AppendAllText(file, 1.5 + "\n");
 
                 // Player color
                 File.AppendAllText(file, __instance.CurrentOutfit.ColorId + "\n");
@@ -209,6 +212,97 @@ public partial class Plugin : BasePlugin
 
                 // Lights
                 File.AppendAllText(file, areLightsOff ? "1" : "0");
+                addNewLine(file);
+
+                // Other players' color + position
+                File.AppendAllText(file, "[");
+                var playerControls = GetAllPlayerControls().ToArray();
+                var p = __instance.GetTruePosition();
+                foreach (var playerControl in playerControls)
+                {
+                    Vector2 p2 = playerControl.GetTruePosition();
+                    if (p.x != p2.x && p.y != p2.y)
+                    {
+                        float dist = GetDistanceBetweenPoints_Unity(p, p2);
+                        if (playerControl != playerControls.Last()) 
+                            File.AppendAllText(file, playerControl.Data.ColorName + "/" + p2.x + "/" + p2.y + ", ");
+                        else
+                            File.AppendAllText(file, playerControl.Data.ColorName + "/" + p2.x + "/" + p2.y);
+                    }
+                }
+                File.AppendAllText(file, "]");
+                addNewLine(file);
+
+                // In vent?
+                File.AppendAllText(file, "[");
+                foreach (var playerControl in playerControls)
+                {
+                    if (playerControl != null)
+                    {
+                        Vector2 p2 = playerControl.GetTruePosition();
+                        if (p.x != p2.x && p.y != p2.y)
+                        {
+                            float dist = GetDistanceBetweenPoints_Unity(p, p2);
+                            if (playerControl != playerControls.Last())
+                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.inVent ? "1" : "0") + ", ");
+                            else
+                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.inVent ? "1" : "0"));
+                        }
+                    }
+                }
+                File.AppendAllText(file, "]");
+                addNewLine(file);
+
+                // Dead?
+                File.AppendAllText(file, "[");
+                foreach (var playerControl in playerControls)
+                {
+                    if (playerControl != null)
+                    {
+                        Vector2 p2 = playerControl.GetTruePosition();
+                        if (p.x != p2.x && p.y != p2.y)
+                        {
+                            float dist = GetDistanceBetweenPoints_Unity(p, p2);
+                            if (playerControl != playerControls.Last())
+                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
+                            else
+                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0"));
+                        }
+                    }
+                }
+                File.AppendAllText(file, "]");
+                addNewLine(file);
+
+                if (imposter)
+                {
+                    file = "imposterData2.txt";
+                    float[] kill_dist_list = { 1f, 1.8f, 2.5f };
+
+                    // Fellow imposters and dead status
+                    File.AppendAllText(file, "[");
+                    foreach (var playerControl in playerControls)
+                    {
+                        if (isPlayerImposter(playerControl.Data))
+                        {
+                            Vector2 p2 = playerControl.GetTruePosition();
+                            if (p.x != p2.x && p.y != p2.y)
+                            {
+                                float dist = GetDistanceBetweenPoints_Unity(p, p2);
+                                if (playerControl != playerControls.Last())
+                                    File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
+                                else
+                                    File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0"));
+                            }
+                        }
+                    }
+                    File.AppendAllText(file, "]");
+                    addNewLine(file);
+
+                    if (!PlayerControl.LocalPlayer.Data.IsDead)
+                        File.AppendAllText(file, PlayerControl.LocalPlayer.killTimer + "\n");
+                    else
+                        File.AppendAllText(file, "-1");
+                }
             }
         }
 
@@ -269,6 +363,12 @@ public partial class Plugin : BasePlugin
             return role.TeamType == RoleTeamTypes.Impostor;
         }
 
-    }
+        static float GetDistanceBetweenPoints_Unity(Vector2 p1, Vector2 p2)
+        {
+	        float dx = p1.x - p2.x, dy = p1.y - p2.y;
+	        return MathF.Sqrt(dx* dx + dy* dy);
+        }
+
+}
 
 }
