@@ -124,6 +124,28 @@ public partial class Plugin : BasePlugin
         }
     }
 
+    public static int TranslateColorName(string colorName)
+    {
+        colorName = colorName.ToUpper().Replace("(", "").Replace(")", "");
+        string[] COLOR_NAMES = {"RED", "BLUE", "GREEN", "PINK",
+                "ORANGE", "YELLOW", "BLACK", "WHITE",
+                "PURPLE", "BROWN", "CYAN", "LIME",
+                "MAROON", "ROSE", "BANANA", "GRAY",
+                "TAN", "CORAL"};
+
+        return System.Array.IndexOf(COLOR_NAMES, colorName.ToUpper());
+    }
+
+    [HarmonyPatch(typeof(ChatController), nameof(ChatController.AddChat))]
+    public static class Chat_Pipe_Patch
+    {
+        public static void Prefix(ChatController __instance, PlayerControl sourcePlayer, System.String chatText)
+        {
+            if (!sourcePlayer.Data.IsDead)
+                File.AppendAllText("chatData2.txt", TranslateColorName(sourcePlayer.Data.ColorName) + ": " + chatText + "\n");
+        }
+    }
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class Data_Pipe_Patch
     {
@@ -345,18 +367,6 @@ public partial class Plugin : BasePlugin
         "Decontamination" };
 
             return LOC_TRANSLATIONS[i];
-        }
-
-        public static int TranslateColorName(string colorName)
-        {
-            colorName = colorName.ToUpper().Replace("(", "").Replace(")", "");
-            string[] COLOR_NAMES = {"RED", "BLUE", "GREEN", "PINK",
-                "ORANGE", "YELLOW", "BLACK", "WHITE",
-                "PURPLE", "BROWN", "CYAN", "LIME",
-                "MAROON", "ROSE", "BANANA", "GRAY",
-                "TAN", "CORAL"};
-
-            return System.Array.IndexOf(COLOR_NAMES, colorName.ToUpper());
         }
 
         public static List<PlayerControl> GetAllPlayerControls()
