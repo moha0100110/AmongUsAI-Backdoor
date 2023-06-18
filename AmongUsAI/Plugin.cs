@@ -174,20 +174,28 @@ public partial class Plugin : BasePlugin
                 File.AppendAllText(file, "]");
                 addNewLine(file);
 
-                
-                // Task Steps
-                File.AppendAllText(file, "[");
-                foreach (var task in currentTasks)
-                {
-                    NormalPlayerTask normTask = task.Cast<NormalPlayerTask>();
-                    if (task != currentTasks.Last())
-                        File.AppendAllText(file, normTask.taskStep + "/" + normTask.MaxStep + ", ");
-                    else
-                        File.AppendAllText(file, normTask.taskStep + "/" + normTask.MaxStep);
 
+                // Task Steps
+                if (!imposter)
+                {
+                    File.AppendAllText(file, "[");
+                    foreach (var task in currentTasks)
+                    {
+                        NormalPlayerTask normTask = task.Cast<NormalPlayerTask>();
+                        if (task != currentTasks.Last())
+                            File.AppendAllText(file, normTask.taskStep + "/" + normTask.MaxStep + ", ");
+                        else
+                            File.AppendAllText(file, normTask.taskStep + "/" + normTask.MaxStep);
+
+                    }
+                    File.AppendAllText(file, "]");
+                    addNewLine(file);
                 }
-                File.AppendAllText(file, "]");
-                addNewLine(file);
+                else
+                {
+                    File.AppendAllText(file, "[]");
+                    addNewLine(file);
+                }
 
                 // Map ID
                 File.AppendAllText(file, map.ToString());
@@ -225,9 +233,9 @@ public partial class Plugin : BasePlugin
                     {
                         float dist = GetDistanceBetweenPoints_Unity(p, p2);
                         if (playerControl != playerControls.Last()) 
-                            File.AppendAllText(file, playerControl.Data.ColorName + "/" + p2.x + "/" + p2.y + ", ");
+                            File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y + ", ");
                         else
-                            File.AppendAllText(file, playerControl.Data.ColorName + "/" + p2.x + "/" + p2.y);
+                            File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y);
                     }
                 }
                 File.AppendAllText(file, "]");
@@ -244,9 +252,9 @@ public partial class Plugin : BasePlugin
                         {
                             float dist = GetDistanceBetweenPoints_Unity(p, p2);
                             if (playerControl != playerControls.Last())
-                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.inVent ? "1" : "0") + ", ");
+                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0") + ", ");
                             else
-                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.inVent ? "1" : "0"));
+                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0"));
                         }
                     }
                 }
@@ -264,9 +272,9 @@ public partial class Plugin : BasePlugin
                         {
                             float dist = GetDistanceBetweenPoints_Unity(p, p2);
                             if (playerControl != playerControls.Last())
-                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
+                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
                             else
-                                File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0"));
+                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0"));
                         }
                     }
                 }
@@ -279,7 +287,7 @@ public partial class Plugin : BasePlugin
                     float[] kill_dist_list = { 1f, 1.8f, 2.5f };
 
                     // Fellow imposters and dead status
-                    File.AppendAllText(file, "[");
+                    File.WriteAllText(file, "[");
                     foreach (var playerControl in playerControls)
                     {
                         if (isPlayerImposter(playerControl.Data))
@@ -289,9 +297,9 @@ public partial class Plugin : BasePlugin
                             {
                                 float dist = GetDistanceBetweenPoints_Unity(p, p2);
                                 if (playerControl != playerControls.Last())
-                                    File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
+                                    File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
                                 else
-                                    File.AppendAllText(file, playerControl.Data.ColorName + "/" + (playerControl.Data.IsDead ? "1" : "0"));
+                                    File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0"));
                             }
                         }
                     }
@@ -335,6 +343,18 @@ public partial class Plugin : BasePlugin
         "Decontamination" };
 
             return LOC_TRANSLATIONS[i];
+        }
+
+        public static int TranslateColorName(string colorName)
+        {
+            colorName = colorName.ToUpper().Replace("(", "").Replace(")", "");
+            string[] COLOR_NAMES = {"RED", "BLUE", "GREEN", "PINK",
+                "ORANGE", "YELLOW", "BLACK", "WHITE",
+                "PURPLE", "BROWN", "CYAN", "LIME",
+                "MAROON", "ROSE", "BANANA", "GRAY",
+                "TAN", "CORAL"};
+
+            return System.Array.IndexOf(COLOR_NAMES, colorName.ToUpper());
         }
 
         public static List<PlayerControl> GetAllPlayerControls()
