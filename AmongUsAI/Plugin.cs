@@ -12,6 +12,7 @@ using Il2CppInterop.Runtime.Runtime;
 using Il2CppSystem;
 using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Configuration;
+using Il2CppSystem.Reflection;
 using InnerNet;
 using Reactor;
 using Reactor.Utilities;
@@ -217,6 +218,7 @@ public partial class Plugin : BasePlugin
                 File.AppendAllText(file, __instance.CurrentOutfit.ColorId + "\n");
 
                 // Room - annoying
+                File.AppendAllText(file, "ERROR" + "\n");
 
                 // Lights
                 File.AppendAllText(file, areLightsOff ? "1" : "0");
