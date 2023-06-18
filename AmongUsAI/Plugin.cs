@@ -146,6 +146,15 @@ public partial class Plugin : BasePlugin
         }
     }
 
+    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
+    public static class Kill_Pipe_Patch
+    {
+        public static void PostFix(PlayerControl __instance, PlayerControl target)
+        {
+                File.AppendAllText("killData2.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
+        }
+    }
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class Data_Pipe_Patch
     {
