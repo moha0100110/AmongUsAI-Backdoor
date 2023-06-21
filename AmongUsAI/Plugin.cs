@@ -292,8 +292,20 @@ public partial class Plugin : BasePlugin
                 // Player color
                 big_output_string += __instance.CurrentOutfit.ColorId + "\n";
 
+                var p = __instance.GetTruePosition();
+
                 // Room - annoying
-                big_output_string += "ERROR" + "\n";
+                //big_output_string += "ERROR" + "\n";
+                string output_room = TranslateSystemTypes(SystemTypes.Outside);
+                var rooms = ShipStatus.Instance.AllRooms.ToArray();
+                foreach (var room in rooms)
+                {
+                    if (room.roomArea != null && room.roomArea.OverlapPoint(p))
+                    {
+                        output_room = TranslateSystemTypes(room.RoomId);
+                    }
+                }
+                big_output_string += output_room + "\n";
 
                 // Lights
                 big_output_string += areLightsOff ? "1" : "0";
@@ -302,7 +314,6 @@ public partial class Plugin : BasePlugin
                 // Other players' color + position
                 big_output_string += "[";
                 var playerControls = GetAllPlayerControls().ToArray();
-                var p = __instance.GetTruePosition();
                 foreach (var playerControl in playerControls)
                 {
                     Vector2 p2 = playerControl.GetTruePosition();
