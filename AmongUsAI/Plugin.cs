@@ -91,6 +91,8 @@ public partial class Plugin : BasePlugin
         public static void Postfix(MeetingHud __instance)
         {
             inMeeting = true;
+            int time = GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.VotingTime) + GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.DiscussionTime);
+            File.WriteAllText("timerData2.txt", time + "\n");
         }
         
     }
@@ -196,6 +198,8 @@ public partial class Plugin : BasePlugin
         }
     }
 
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Awake))]
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class Data_Pipe_Patch
     {
@@ -283,8 +287,8 @@ public partial class Plugin : BasePlugin
                 addNewLine(file);
 
                 // Player Speed - hardcoded to 1.5x
-                //File.AppendAllText(file, FloatOptionNames.PlayerSpeedMod + "\n");
-                File.AppendAllText(file, 1.5 + "\n");
+                File.AppendAllText(file, GameOptionsManager.Instance.CurrentGameOptions.GetFloat(FloatOptionNames.PlayerSpeedMod) + "\n");
+                //File.AppendAllText(file, 1.5 + "\n");
 
                 // Player color
                 File.AppendAllText(file, __instance.CurrentOutfit.ColorId + "\n");
