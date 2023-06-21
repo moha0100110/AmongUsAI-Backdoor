@@ -208,6 +208,7 @@ public partial class Plugin : BasePlugin
             string file = "sendData2.txt";
             bool areLightsOff = false;
             bool imposter = isPlayerImposter(PlayerControl.LocalPlayer.Data);
+            string big_output_string = "";
 
             // Local Player
             if (__instance == PlayerControl.LocalPlayer)
@@ -216,92 +217,92 @@ public partial class Plugin : BasePlugin
                 File.WriteAllText("inGameData.txt", __instance.CanMove ? "1" : "0");
 
                 // Player position
-                File.WriteAllText(file, __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString() + "\n");
+                big_output_string += __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString() + "\n";
 
                 // Role
-                File.AppendAllText(file, imposter ? "impostor\n" : "crewmate\n");
+                big_output_string += imposter ? "impostor\n" : "crewmate\n";
 
                 var currentTasks = __instance.myTasks.ToArray();
 
                 // Task List
-                File.AppendAllText(file, "[");
+                big_output_string += "[";
                 foreach (var task in currentTasks)
                 {
                     if (task != currentTasks.Last())
-                        File.AppendAllText(file, TranslateTaskTypes(task.TaskType) + ", ");
+                        big_output_string += TranslateTaskTypes(task.TaskType) + ", ";
                     else
-                        File.AppendAllText(file, TranslateTaskTypes(task.TaskType));
+                        big_output_string += TranslateTaskTypes(task.TaskType);
 
                     if (TranslateTaskTypes(task.TaskType).Equals("Fix Lights"))
                         areLightsOff = true;
                 }
-                File.AppendAllText(file, "]");
-                addNewLine(file);
+                big_output_string += "]";
+                big_output_string += "\n";
 
                 // Task Locations
-                File.AppendAllText(file, "[");
+                big_output_string += "[";
                 foreach (var task in currentTasks)
                 {
                     if (task != currentTasks.Last())
-                        File.AppendAllText(file, TranslateSystemTypes(task.StartAt) + ", ");
+                        big_output_string += TranslateSystemTypes(task.StartAt) + ", ";
                     else
-                        File.AppendAllText(file, TranslateSystemTypes(task.StartAt));
+                        big_output_string += TranslateSystemTypes(task.StartAt);
 
                 }
-                File.AppendAllText(file, "]");
-                addNewLine(file);
+                big_output_string += "]";
+                big_output_string += "\n";
 
 
                 // Task Steps
                 if (!imposter)
                 {
-                    File.AppendAllText(file, "[");
+                    big_output_string += "[";
                     foreach (var task in currentTasks)
                     {
                         NormalPlayerTask normTask = task.Cast<NormalPlayerTask>();
                         if (task != currentTasks.Last())
-                            File.AppendAllText(file, normTask.taskStep + "/" + normTask.MaxStep + ", ");
+                            big_output_string += normTask.taskStep + "/" + normTask.MaxStep + ", ";
                         else
-                            File.AppendAllText(file, normTask.taskStep + "/" + normTask.MaxStep);
+                            big_output_string += normTask.taskStep + "/" + normTask.MaxStep;
 
                     }
-                    File.AppendAllText(file, "]");
-                    addNewLine(file);
+                    big_output_string += "]";
+                    big_output_string += "\n";
                 }
                 else
                 {
-                    File.AppendAllText(file, "[]");
-                    addNewLine(file);
+                    big_output_string += "[]";
+                    big_output_string += "\n";
                 }
 
                 // Map ID
-                File.AppendAllText(file, map.ToString());
-                addNewLine(file);
+                big_output_string += map.ToString();
+                big_output_string += "\n";
 
                 //Is dead?
-                File.AppendAllText(file, __instance.Data.IsDead ? "1" : "0");
-                addNewLine(file);
+                big_output_string += __instance.Data.IsDead ? "1" : "0";
+                big_output_string += "\n";
 
                 // In meeting
-                File.AppendAllText(file, inMeeting ? "1" : "0");
-                addNewLine(file);
+                big_output_string += inMeeting ? "1" : "0";
+                big_output_string += "\n";
 
-                // Player Speed - hardcoded to 1.5x
-                File.AppendAllText(file, GameOptionsManager.Instance.CurrentGameOptions.GetFloat(FloatOptionNames.PlayerSpeedMod) + "\n");
+                // Player Speed
+                big_output_string += GameOptionsManager.Instance.CurrentGameOptions.GetFloat(FloatOptionNames.PlayerSpeedMod) + "\n";
                 //File.AppendAllText(file, 1.5 + "\n");
 
                 // Player color
-                File.AppendAllText(file, __instance.CurrentOutfit.ColorId + "\n");
+                big_output_string += __instance.CurrentOutfit.ColorId + "\n";
 
                 // Room - annoying
-                File.AppendAllText(file, "ERROR" + "\n");
+                big_output_string += "ERROR" + "\n";
 
                 // Lights
-                File.AppendAllText(file, areLightsOff ? "1" : "0");
-                addNewLine(file);
+                big_output_string += areLightsOff ? "1" : "0";
+                big_output_string += "\n";
 
                 // Other players' color + position
-                File.AppendAllText(file, "[");
+                big_output_string += "[";
                 var playerControls = GetAllPlayerControls().ToArray();
                 var p = __instance.GetTruePosition();
                 foreach (var playerControl in playerControls)
@@ -310,17 +311,17 @@ public partial class Plugin : BasePlugin
                     if (p.x != p2.x && p.y != p2.y)
                     {
                         float dist = GetDistanceBetweenPoints_Unity(p, p2);
-                        if (playerControl != playerControls.Last()) 
-                            File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y + ", ");
+                        if (playerControl != playerControls.Last())
+                            big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y + ", ";
                         else
-                            File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y);
+                            big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y;
                     }
                 }
-                File.AppendAllText(file, "]");
-                addNewLine(file);
+                big_output_string += "]";
+                big_output_string += "\n";
 
                 // In vent?
-                File.AppendAllText(file, "[");
+                big_output_string += "[";
                 foreach (var playerControl in playerControls)
                 {
                     if (playerControl != null)
@@ -330,17 +331,17 @@ public partial class Plugin : BasePlugin
                         {
                             float dist = GetDistanceBetweenPoints_Unity(p, p2);
                             if (playerControl != playerControls.Last())
-                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0") + ", ");
+                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0") + ", ";
                             else
-                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0"));
+                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0");
                         }
                     }
                 }
-                File.AppendAllText(file, "]");
-                addNewLine(file);
+                big_output_string += "]";
+                big_output_string += "\n";
 
                 // Dead?
-                File.AppendAllText(file, "[");
+                big_output_string += "[";
                 foreach (var playerControl in playerControls)
                 {
                     if (playerControl != null)
@@ -350,14 +351,17 @@ public partial class Plugin : BasePlugin
                         {
                             float dist = GetDistanceBetweenPoints_Unity(p, p2);
                             if (playerControl != playerControls.Last())
-                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
+                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ";
                             else
-                                File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0"));
+                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0");
                         }
                     }
                 }
-                File.AppendAllText(file, "]");
-                addNewLine(file);
+                big_output_string += "]";
+                big_output_string += "\n";
+
+                // Big write to prevent incomplete send data
+                File.WriteAllText(file, big_output_string);
 
                 if (imposter)
                 {
@@ -382,7 +386,7 @@ public partial class Plugin : BasePlugin
                         }
                     }
                     File.AppendAllText(file, "]");
-                    addNewLine(file);
+                    big_output_string += "\n";
 
                     if (!PlayerControl.LocalPlayer.Data.IsDead)
                         File.AppendAllText(file, PlayerControl.LocalPlayer.killTimer + "\n");
