@@ -198,8 +198,6 @@ public partial class Plugin : BasePlugin
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Awake))]
-
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class Data_Pipe_Patch
     {
