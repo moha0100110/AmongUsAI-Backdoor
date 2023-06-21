@@ -364,10 +364,11 @@ public partial class Plugin : BasePlugin
                 if (imposter)
                 {
                     file = "imposterData2.txt";
-                    float[] kill_dist_list = { 1f, 1.8f, 2.5f };
 
+                    float[] kill_dist_list = { 1f, 1.8f, 2.5f };
+                    string imp_output_string = "";
                     // Fellow imposters and dead status
-                    File.WriteAllText(file, "[");
+                    imp_output_string += "[";
                     foreach (var playerControl in playerControls)
                     {
                         if (isPlayerImposter(playerControl.Data))
@@ -377,19 +378,21 @@ public partial class Plugin : BasePlugin
                             {
                                 float dist = GetDistanceBetweenPoints_Unity(p, p2);
                                 if (playerControl != playerControls.Last())
-                                    File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ");
+                                    imp_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ";
                                 else
-                                    File.AppendAllText(file, TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0"));
+                                    imp_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0");
                             }
                         }
                     }
-                    File.AppendAllText(file, "]");
-                    big_output_string += "\n";
+                    imp_output_string += "]";
+                    imp_output_string += "\n";
 
                     if (!PlayerControl.LocalPlayer.Data.IsDead)
-                        File.AppendAllText(file, PlayerControl.LocalPlayer.killTimer + "\n");
+                        imp_output_string += PlayerControl.LocalPlayer.killTimer + "\n";
                     else
-                        File.AppendAllText(file, "-1");
+                        imp_output_string += "-1";
+
+                    File.WriteAllText(file, imp_output_string);
                 }
             }
         }
