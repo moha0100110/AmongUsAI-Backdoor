@@ -149,9 +149,50 @@ public partial class Plugin : BasePlugin
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
     public static class Kill_Pipe_Patch
     {
-        public static void PostFix(PlayerControl __instance, PlayerControl target)
+        public static void Finalizer(PlayerControl __instance, PlayerControl target)
         {
                 File.AppendAllText("killData2.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
+        }
+    }
+
+    public static List<PlayerControl> GetAllPlayerControls()
+    {
+        return PlayerControl.AllPlayerControls;
+    }
+
+    public static List<GameData.PlayerInfo> GetAllPlayerData()
+    {
+        List<GameData.PlayerInfo> playerDatas = new List<GameData.PlayerInfo>();
+
+        var playerControls = GetAllPlayerControls();
+        foreach (PlayerControl playerControl in playerControls)
+        {
+            playerDatas.Add(playerControl.Data);
+        }
+
+        return playerDatas;
+    }
+
+    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.StartMeeting))]
+    public static class Meeting_Pipe_Patch
+    {
+        public static void Finalizer(PlayerControl __instance, GameData.PlayerInfo target)
+        {
+            File.WriteAllText("meetingData2.txt", TranslateColorName(__instance.Data.ColorName) + "\n");
+            var players = GetAllPlayerData().ToArray();
+
+            File.AppendAllText("meetingData2.txt", "[");
+            foreach (GameData.PlayerInfo player in players)
+            {
+                if (player.IsDead)
+                {
+                    if (player != players.Last()) // Doesn't work since last might not be dead.
+                        File.AppendAllText("meetingData2.txt", TranslateColorName(player.ColorName) + ", ");
+                    else
+                        File.AppendAllText("meetingData2.txt", TranslateColorName(player.ColorName).ToString());
+                }
+            }
+            File.AppendAllText("meetingData2.txt", "]");
         }
     }
 
@@ -376,24 +417,6 @@ public partial class Plugin : BasePlugin
         "Decontamination" };
 
             return LOC_TRANSLATIONS[i];
-        }
-
-        public static List<PlayerControl> GetAllPlayerControls()
-        {
-            return PlayerControl.AllPlayerControls;
-        }
-
-        public static List<GameData.PlayerInfo> GetAllPlayerData()
-        {
-            List<GameData.PlayerInfo> playerDatas = new List<GameData.PlayerInfo>();
-
-            var playerControls = GetAllPlayerControls();
-            foreach (PlayerControl playerControl in playerControls)
-            {
-                playerDatas.Add(playerControl.Data);
-            }
-
-            return playerDatas;
         }
 
         public static bool isPlayerImposter(GameData.PlayerInfo playerInfo)
