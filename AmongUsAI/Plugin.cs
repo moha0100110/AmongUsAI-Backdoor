@@ -203,6 +203,8 @@ public partial class Plugin : BasePlugin
     {
         public static void Postfix(PlayerControl __instance)
         {
+            if (__instance == null)
+                return;
             string file = "sendData2.txt";
             bool areLightsOff = false;
             bool imposter = isPlayerImposter(PlayerControl.LocalPlayer.Data);
