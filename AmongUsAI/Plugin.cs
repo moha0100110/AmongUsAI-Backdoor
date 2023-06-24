@@ -22,6 +22,7 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 using xCloud;
 
 namespace AmongUsAI;
@@ -198,6 +199,26 @@ public partial class Plugin : BasePlugin
         }
     }
 
+    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.OnGameStart))]
+    public static class Game_Start_Patch
+    {
+        public static void Finalize(PlayerControl __instance)
+        {
+            // Is in game?
+            File.WriteAllText("inGameData.txt", "1");
+        }
+    }
+
+    [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.OnGameEnd))]
+    public static class Game_End_Patch
+    {
+        public static void Finalize(PlayerControl __instance)
+        {
+            // Is in game?
+            File.WriteAllText("inGameData.txt", "0");
+        }
+    }
+
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     public static class Data_Pipe_Patch
     {
@@ -211,10 +232,8 @@ public partial class Plugin : BasePlugin
             string big_output_string = "";
 
             // Local Player
-            if (__instance == PlayerControl.LocalPlayer)
+            if (__instance != null && __instance == PlayerControl.LocalPlayer)
             {
-                // Is in game?
-                File.WriteAllText("inGameData.txt", __instance.CanMove ? "1" : "0");
 
                 // Player position
                 big_output_string += __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString() + "\n";
