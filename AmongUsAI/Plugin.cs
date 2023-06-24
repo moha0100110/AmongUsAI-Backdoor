@@ -93,7 +93,7 @@ public partial class Plugin : BasePlugin
         {
             inMeeting = true;
             int time = GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.VotingTime) + GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.DiscussionTime);
-            File.WriteAllText("timerData2.txt", time + "\n");
+            File.WriteAllText("timerData.txt", time + "\n");
         }
         
     }
@@ -145,7 +145,7 @@ public partial class Plugin : BasePlugin
         public static void Prefix(ChatController __instance, PlayerControl sourcePlayer, System.String chatText)
         {
             if (!sourcePlayer.Data.IsDead)
-                File.AppendAllText("chatData2.txt", TranslateColorName(sourcePlayer.Data.ColorName) + ": " + chatText + "\n");
+                File.AppendAllText("chatData.txt", TranslateColorName(sourcePlayer.Data.ColorName) + ": " + chatText + "\n");
         }
     }
 
@@ -154,7 +154,7 @@ public partial class Plugin : BasePlugin
     {
         public static void Finalizer(PlayerControl __instance, PlayerControl target)
         {
-                File.AppendAllText("killData2.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
+                File.AppendAllText("killData.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
         }
     }
 
@@ -181,21 +181,21 @@ public partial class Plugin : BasePlugin
     {
         public static void Finalizer(PlayerControl __instance, GameData.PlayerInfo target)
         {
-            File.WriteAllText("meetingData2.txt", TranslateColorName(__instance.Data.ColorName) + "\n");
+            File.WriteAllText("meetingData.txt", TranslateColorName(__instance.Data.ColorName) + "\n");
             var players = GetAllPlayerData().ToArray();
 
-            File.AppendAllText("meetingData2.txt", "[");
+            File.AppendAllText("meetingData.txt", "[");
             foreach (GameData.PlayerInfo player in players)
             {
                 if (player.IsDead)
                 {
                     if (player != players.Last()) // Doesn't work since last might not be dead.
-                        File.AppendAllText("meetingData2.txt", TranslateColorName(player.ColorName) + ", ");
+                        File.AppendAllText("meetingData.txt", TranslateColorName(player.ColorName) + ", ");
                     else
-                        File.AppendAllText("meetingData2.txt", TranslateColorName(player.ColorName).ToString());
+                        File.AppendAllText("meetingData.txt", TranslateColorName(player.ColorName).ToString());
                 }
             }
-            File.AppendAllText("meetingData2.txt", "]");
+            File.AppendAllText("meetingData.txt", "]");
         }
     }
 
@@ -226,7 +226,7 @@ public partial class Plugin : BasePlugin
         {
             if (__instance == null)
                 return;
-            string file = "sendData2.txt";
+            string file = "sendData.txt";
             bool areLightsOff = false;
             bool imposter = isPlayerImposter(PlayerControl.LocalPlayer.Data);
             string big_output_string = "";
@@ -395,7 +395,7 @@ public partial class Plugin : BasePlugin
 
                 if (imposter)
                 {
-                    file = "imposterData2.txt";
+                    file = "imposterData.txt";
 
                     float[] kill_dist_list = { 1f, 1.8f, 2.5f };
                     string imp_output_string = "";
