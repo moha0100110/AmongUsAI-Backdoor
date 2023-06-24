@@ -92,8 +92,20 @@ public partial class Plugin : BasePlugin
         public static void Postfix(MeetingHud __instance)
         {
             inMeeting = true;
+
+            // Write timer data
             int time = GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.VotingTime) + GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.DiscussionTime);
             File.WriteAllText("timerData.txt", time + "\n");
+
+            var players = GetAllPlayerControls();
+
+            // Remove player hats and visors
+            foreach ( var player in players )
+            {
+                var outfit = player.CurrentOutfit;
+                outfit.HatId = "hat_NoHat";
+                outfit.VisorId = "visor_EmptyVisor0";
+            }
         }
         
     }
@@ -144,6 +156,7 @@ public partial class Plugin : BasePlugin
     {
         public static void Prefix(ChatController __instance, PlayerControl sourcePlayer, System.String chatText)
         {
+            // write chats
             if (!sourcePlayer.Data.IsDead)
                 File.AppendAllText("chatData.txt", TranslateColorName(sourcePlayer.Data.ColorName) + ": " + chatText + "\n");
         }
@@ -154,7 +167,8 @@ public partial class Plugin : BasePlugin
     {
         public static void Finalizer(PlayerControl __instance, PlayerControl target)
         {
-                File.AppendAllText("killData.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
+            // Write kill data
+            File.AppendAllText("killData.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
         }
     }
 
@@ -181,9 +195,11 @@ public partial class Plugin : BasePlugin
     {
         public static void Finalizer(PlayerControl __instance, GameData.PlayerInfo target)
         {
+            // Who called the meeting?
             File.WriteAllText("meetingData.txt", TranslateColorName(__instance.Data.ColorName) + "\n");
             var players = GetAllPlayerData().ToArray();
 
+            // pipe dead players
             File.AppendAllText("meetingData.txt", "[");
             foreach (GameData.PlayerInfo player in players)
             {
