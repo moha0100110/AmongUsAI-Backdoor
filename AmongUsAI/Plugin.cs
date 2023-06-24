@@ -1,8 +1,7 @@
 ﻿using AmongUs.Data.Player;
 using AmongUs.Data.Settings;
 using AmongUs.GameOptions;
-using Submerged;
-using Submerged.Map.MonoBehaviour;
+using Submerged.Map.MonoBehaviours;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
@@ -89,7 +88,7 @@ public partial class Plugin : BasePlugin
     }
     
     // Submerged (not yet test it)
-    [HarmonyPatch(typeof(SubmarineStatus), nameof(SubmarineStatus.OnEnable)]
+    [HarmonyPatch(typeof(SubmarineStatus), nameof(SubmarineStatus.OnEnable))]
     public static class SubmarineStatusUpdate
     {
         public static void Prefix(SubmarineStatus __instance)
