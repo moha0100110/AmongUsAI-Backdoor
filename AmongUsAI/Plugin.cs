@@ -14,8 +14,8 @@ using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Configuration;
 using Il2CppSystem.Reflection;
 using InnerNet;
-using Reactor;
-using Reactor.Utilities;
+//using Reactor;
+//using Reactor.Utilities;
 using Rewired;
 using Sentry.Protocol;
 using System;
@@ -29,7 +29,7 @@ namespace AmongUsAI;
 
 [BepInAutoPlugin]
 [BepInProcess("Among Us.exe")]
-[BepInDependency(ReactorPlugin.Id)]
+//[BepInDependency(ReactorPlugin.Id)]
 public partial class Plugin : BasePlugin
 {
     public Harmony Harmony { get; } = new(Id);
