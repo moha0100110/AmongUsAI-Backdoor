@@ -41,7 +41,7 @@ public partial class Plugin : BasePlugin
         Ship = 0,
         Hq = 1,
         Pb = 2,
-        Airship = 3
+        Airship = 3,
 	Submerged = 5
     }
 
