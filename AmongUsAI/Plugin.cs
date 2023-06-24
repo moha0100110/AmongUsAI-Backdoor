@@ -15,8 +15,8 @@ using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Configuration;
 using Il2CppSystem.Reflection;
 using InnerNet;
-using Reactor;
-using Reactor.Utilities;
+//using Reactor;
+//using Reactor.Utilities;
 using Rewired;
 using Sentry.Protocol;
 using System;
@@ -30,7 +30,7 @@ namespace AmongUsAI;
 
 [BepInAutoPlugin]
 [BepInProcess("Among Us.exe")]
-[BepInDependency(ReactorPlugin.Id)]
+//[BepInDependency(ReactorPlugin.Id)]
 public partial class Plugin : BasePlugin
 {
     public Harmony Harmony { get; } = new(Id);
@@ -104,8 +104,20 @@ public partial class Plugin : BasePlugin
         public static void Postfix(MeetingHud __instance)
         {
             inMeeting = true;
+
+            // Write timer data
             int time = GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.VotingTime) + GameOptionsManager.Instance.CurrentGameOptions.GetInt(Int32OptionNames.DiscussionTime);
             File.WriteAllText("timerData2.txt", time + "\n");
+
+            var players = GetAllPlayerControls();
+
+            // Remove player hats and visors
+            foreach ( var player in players )
+            {
+                var outfit = player.CurrentOutfit;
+                outfit.HatId = "hat_NoHat";
+                outfit.VisorId = "visor_EmptyVisor0";
+            }
         }
         
     }
@@ -156,6 +168,7 @@ public partial class Plugin : BasePlugin
     {
         public static void Prefix(ChatController __instance, PlayerControl sourcePlayer, System.String chatText)
         {
+            // write chats
             if (!sourcePlayer.Data.IsDead)
                 File.AppendAllText("chatData2.txt", TranslateColorName(sourcePlayer.Data.ColorName) + ": " + chatText + "\n");
         }
@@ -166,7 +179,8 @@ public partial class Plugin : BasePlugin
     {
         public static void Finalizer(PlayerControl __instance, PlayerControl target)
         {
-                File.AppendAllText("killData2.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
+            // Write kill data
+            File.AppendAllText("killData2.txt", TranslateColorName(__instance.Data.ColorName) + ", " + TranslateColorName(target.Data.ColorName) + "\n");
         }
     }
 
@@ -193,9 +207,11 @@ public partial class Plugin : BasePlugin
     {
         public static void Finalizer(PlayerControl __instance, GameData.PlayerInfo target)
         {
+            // Who called the meeting?
             File.WriteAllText("meetingData2.txt", TranslateColorName(__instance.Data.ColorName) + "\n");
             var players = GetAllPlayerData().ToArray();
 
+            // pipe dead players
             File.AppendAllText("meetingData2.txt", "[");
             foreach (GameData.PlayerInfo player in players)
             {
@@ -236,6 +252,8 @@ public partial class Plugin : BasePlugin
     {
         public static void Postfix(PlayerControl __instance)
         {
+            if (__instance == null)
+                return;
             string file = "sendData2.txt";
             bool areLightsOff = false;
             bool imposter = isPlayerImposter(PlayerControl.LocalPlayer.Data);
