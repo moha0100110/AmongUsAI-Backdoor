@@ -1,6 +1,8 @@
 ﻿using AmongUs.Data.Player;
 using AmongUs.Data.Settings;
 using AmongUs.GameOptions;
+using Submerged;
+using Submerged.Map.MonoBehaviour;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
