@@ -1,6 +1,7 @@
 ﻿using AmongUs.Data.Player;
 using AmongUs.Data.Settings;
 using AmongUs.GameOptions;
+using Submerged.Map.MonoBehaviours;
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Unity.IL2CPP;
@@ -41,7 +42,8 @@ public partial class Plugin : BasePlugin
         Ship = 0,
         Hq = 1,
         Pb = 2,
-        Airship = 3
+        Airship = 3,
+	Submerged = 5
     }
 
     public static MapType map;
@@ -84,6 +86,16 @@ public partial class Plugin : BasePlugin
             map = MapType.Airship;
         }
     }
+    
+    // Submerged (not yet test it)
+    [HarmonyPatch(typeof(SubmarineStatus), nameof(SubmarineStatus.OnEnable))]
+    public static class SubmarineStatusUpdate
+    {
+        public static void Prefix(SubmarineStatus __instance)
+	{
+           map = MapType.Submerged;
+	}
+   }
 
     // MEETING UPDATE
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Awake))]
