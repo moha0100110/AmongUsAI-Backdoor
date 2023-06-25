@@ -296,7 +296,7 @@ public partial class Plugin : BasePlugin
                     big_output_string += "[";
                     foreach (var task in currentTasks)
                     {
-                        NormalPlayerTask normTask = task.Cast<NormalPlayerTask>();
+                        NormalPlayerTask normTask = task.TryCast<NormalPlayerTask>(); // issue here
                         if (task != currentTasks.Last())
                             big_output_string += normTask.taskStep + "/" + normTask.MaxStep + ", ";
                         else
