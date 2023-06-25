@@ -240,7 +240,7 @@ public partial class Plugin : BasePlugin
     {
         public static void Postfix(PlayerControl __instance)
         {
-            if (__instance == null)
+            if (__instance == null || ShipStatus.Instance == null)
                 return;
             string file = "sendData.txt";
             bool areLightsOff = false;
