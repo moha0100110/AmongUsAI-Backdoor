@@ -199,19 +199,30 @@ public partial class Plugin : BasePlugin
             File.WriteAllText("meetingData.txt", TranslateColorName(__instance.Data.ColorName) + "\n");
             var players = GetAllPlayerData().ToArray();
 
+            string output_string = "";
+
             // pipe dead players
-            File.AppendAllText("meetingData.txt", "[");
+            output_string += "[";
             foreach (GameData.PlayerInfo player in players)
             {
                 if (player.IsDead)
                 {
-                    if (player != players.Last()) // Doesn't work since last might not be dead.
-                        File.AppendAllText("meetingData.txt", TranslateColorName(player.ColorName) + ", ");
-                    else
-                        File.AppendAllText("meetingData.txt", TranslateColorName(player.ColorName).ToString());
+                    output_string += TranslateColorName(player.ColorName) + ", ";
                 }
             }
-            File.AppendAllText("meetingData.txt", "]");
+            if (output_string.Length > 1)
+                output_string = output_string.Remove(output_string.Length - 2);
+            output_string += "]\n";
+
+            // pipe player colors and names
+            output_string += "[";
+            foreach (GameData.PlayerInfo player in players)
+            {
+                output_string += player.PlayerName + "/" + TranslateColorName(player.ColorName) + ", ";
+            }
+            output_string = output_string.Remove(output_string.Length - 2);
+            output_string += "]\n";
+            File.AppendAllText("meetingData.txt", output_string);
         }
     }
 
