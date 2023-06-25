@@ -250,6 +250,8 @@ public partial class Plugin : BasePlugin
             // Local Player
             if (__instance != null && __instance == PlayerControl.LocalPlayer)
             {
+                //In Game
+                File.WriteAllText("inGameData.txt", "1");
 
                 // Player position
                 big_output_string += __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString() + "\n";
