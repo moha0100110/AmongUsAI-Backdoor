@@ -296,11 +296,15 @@ public partial class Plugin : BasePlugin
                     big_output_string += "[";
                     foreach (var task in currentTasks)
                     {
-                        NormalPlayerTask normTask = task.TryCast<NormalPlayerTask>(); // issue here
-                        if (task != currentTasks.Last())
-                            big_output_string += normTask.taskStep + "/" + normTask.MaxStep + ", ";
-                        else
-                            big_output_string += normTask.taskStep + "/" + normTask.MaxStep;
+                        try
+                        {
+                            NormalPlayerTask normTask = task.TryCast<NormalPlayerTask>(); // issue here
+                            if (task != currentTasks.Last())
+                                big_output_string += normTask.taskStep + "/" + normTask.MaxStep + ", ";
+                            else
+                                big_output_string += normTask.taskStep + "/" + normTask.MaxStep;
+                        }
+                        catch { continue; }
 
                     }
                     big_output_string += "]";
@@ -359,12 +363,10 @@ public partial class Plugin : BasePlugin
                     if (p.x != p2.x && p.y != p2.y)
                     {
                         float dist = GetDistanceBetweenPoints_Unity(p, p2);
-                        if (playerControl != playerControls.Last())
-                            big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y + ", ";
-                        else
-                            big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y;
+                        big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + p2.x + "/" + p2.y + ", ";
                     }
                 }
+                big_output_string = big_output_string.Remove(big_output_string.Length - 2);
                 big_output_string += "]";
                 big_output_string += "\n";
 
@@ -378,13 +380,11 @@ public partial class Plugin : BasePlugin
                         if (p.x != p2.x && p.y != p2.y)
                         {
                             float dist = GetDistanceBetweenPoints_Unity(p, p2);
-                            if (playerControl != playerControls.Last())
-                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0") + ", ";
-                            else
-                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0");
+                            big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.inVent ? "1" : "0") + ", ";
                         }
                     }
                 }
+                big_output_string = big_output_string.Remove(big_output_string.Length - 2);
                 big_output_string += "]";
                 big_output_string += "\n";
 
@@ -398,13 +398,11 @@ public partial class Plugin : BasePlugin
                         if (p.x != p2.x && p.y != p2.y)
                         {
                             float dist = GetDistanceBetweenPoints_Unity(p, p2);
-                            if (playerControl != playerControls.Last())
-                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ";
-                            else
-                                big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0");
+                            big_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ";
                         }
                     }
                 }
+                big_output_string = big_output_string.Remove(big_output_string.Length - 2);
                 big_output_string += "]";
                 big_output_string += "\n";
 
@@ -427,13 +425,11 @@ public partial class Plugin : BasePlugin
                             if (p.x != p2.x && p.y != p2.y)
                             {
                                 float dist = GetDistanceBetweenPoints_Unity(p, p2);
-                                if (playerControl != playerControls.Last())
-                                    imp_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ";
-                                else
-                                    imp_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0");
+                                imp_output_string += TranslateColorName(playerControl.Data.ColorName) + "/" + (playerControl.Data.IsDead ? "1" : "0") + ", ";
                             }
                         }
                     }
+                    imp_output_string = imp_output_string.Remove(imp_output_string.Length - 2);
                     imp_output_string += "]";
                     imp_output_string += "\n";
 
