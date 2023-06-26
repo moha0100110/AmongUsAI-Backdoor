@@ -440,7 +440,11 @@ public partial class Plugin : BasePlugin
                             }
                         }
                     }
-                    imp_output_string = imp_output_string.Remove(imp_output_string.Length - 2);
+                    try
+                    {
+                        imp_output_string = imp_output_string.Remove(imp_output_string.Length - 2);
+                    }
+                    catch { }
                     imp_output_string += "]";
                     imp_output_string += "\n";
 
