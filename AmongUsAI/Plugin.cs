@@ -291,12 +291,22 @@ public partial class Plugin : BasePlugin
                 big_output_string += "[";
                 foreach (var task in currentTasks)
                 {
-                    if (task != currentTasks.Last())
-                        big_output_string += TranslateSystemTypes(task.StartAt) + ", ";
+                    if (TranslateTaskTypes(task.TaskType) == "Activate Weather Nodes" && TranslateSystemTypes(task.StartAt).Equals("Outside"))
+                    {
+                        string short_string = task.name.Remove(0, 7);
+                        big_output_string += "NODE_" + short_string.Remove(short_string.IndexOf("(Clone)"), 7).ToUpper() + ", ";
+                    }
                     else
-                        big_output_string += TranslateSystemTypes(task.StartAt);
+                    {
+                        big_output_string += TranslateSystemTypes(task.StartAt) + ", ";
+                    }
 
                 }
+                try
+                {
+                    big_output_string = big_output_string.Remove(big_output_string.Length - 2);
+                }
+                catch { }
                 big_output_string += "]";
                 big_output_string += "\n";
 
