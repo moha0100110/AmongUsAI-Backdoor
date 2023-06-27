@@ -291,16 +291,16 @@ public partial class Plugin : BasePlugin
                 big_output_string += "[";
                 foreach (var task in currentTasks)
                 {
-                    if (TranslateTaskTypes(task.TaskType) == "Activate Weather Nodes" && TranslateSystemTypes(task.StartAt).Equals("Outside"))
+                    try
                     {
-                        string short_string = task.name.Remove(0, 7);
-                        big_output_string += "NODE_" + short_string.Remove(short_string.IndexOf("(Clone)"), 7).ToUpper() + ", ";
+                        if (map.ToString() != "Ship")
+                            big_output_string += TranslateSystemTypes(task.StartAt) + "(" + System.Math.Round(task.Locations[0].x) + "/" + System.Math.Round(task.Locations[0].y) + ")" + ", ";
+                        else
+                            big_output_string += TranslateSystemTypes(task.StartAt) + ", ";
                     }
-                    else
-                    {
-                        big_output_string += TranslateSystemTypes(task.StartAt) + ", ";
+                    catch {
+                        big_output_string += TranslateSystemTypes(task.StartAt) + "(" + "-0/-0" + ")" + ", ";
                     }
-
                 }
                 try
                 {
