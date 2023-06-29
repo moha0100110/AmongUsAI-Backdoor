@@ -320,6 +320,10 @@ public partial class Plugin : BasePlugin
                         try
                         {
                             NormalPlayerTask normTask = task.TryCast<NormalPlayerTask>(); // issue here
+                            if (TranslateTaskTypes(task.TaskType) == "Reboot Wifi")
+                            {
+                                File.WriteAllText("wifiTaskData.txt", normTask.TaskTimer.ToString());
+                            }
                             if (task != currentTasks.Last())
                                 big_output_string += normTask.taskStep + "/" + normTask.MaxStep + ", ";
                             else
