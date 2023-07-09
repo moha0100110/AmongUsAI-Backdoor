@@ -275,8 +275,16 @@ public partial class Plugin : BasePlugin
 
                 // Task List
                 big_output_string += "[";
+                bool skip = false;
+                if (__instance.Data.IsDead && TranslateSystemTypes(currentTasks[0].StartAt).Equals("Hallway") && TranslateTaskTypes(currentTasks[0].TaskType).Equals("Submit Scan"))
+                    skip = true;
                 foreach (var task in currentTasks)
                 {
+                    if (skip)
+                    {
+                        skip = false;
+                        continue;
+                    }
                     if (task != currentTasks.Last())
                         big_output_string += TranslateTaskTypes(task.TaskType) + ", ";
                     else
@@ -290,8 +298,15 @@ public partial class Plugin : BasePlugin
 
                 // Task Locations
                 big_output_string += "[";
+                if (__instance.Data.IsDead && TranslateSystemTypes(currentTasks[0].StartAt).Equals("Hallway"))
+                    skip = true;
                 foreach (var task in currentTasks)
                 {
+                    if (skip)
+                    {
+                        skip = false;
+                        continue;
+                    }
                     try
                     {
                         if (map.ToString() != "Ship")
