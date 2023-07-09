@@ -17,6 +17,7 @@ using InnerNet;
 //using Reactor;
 //using Reactor.Utilities;
 using Rewired;
+using Sentry.Internal;
 using Sentry.Protocol;
 using System;
 using System.IO;
@@ -296,7 +297,14 @@ public partial class Plugin : BasePlugin
                         if (map.ToString() != "Ship")
                             big_output_string += TranslateSystemTypes(task.StartAt) + "(" + System.Math.Round(task.Locations[0].x) + "/" + System.Math.Round(task.Locations[0].y) + ")" + ", ";
                         else
-                            big_output_string += TranslateSystemTypes(task.StartAt) + ", ";
+                        {
+                            string location = TranslateSystemTypes(task.StartAt);
+                            if (TranslateTaskTypes(task.TaskType).Equals("Vent Cleaning") && TranslateSystemTypes(task.StartAt) == "Reactor")
+                            {
+                                location = "" + TranslateSystemTypes(task.StartAt) + "(" + System.Math.Round(task.Locations[0].x) + "/" + System.Math.Round(task.Locations[0].y) + ")";
+                            }
+                            big_output_string += location + ", ";
+                        }
                     }
                     catch {
                         big_output_string += TranslateSystemTypes(task.StartAt) + "(" + "-0/-0" + ")" + ", ";
