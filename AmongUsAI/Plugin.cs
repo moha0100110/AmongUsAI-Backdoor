@@ -99,6 +99,10 @@ public partial class Plugin : BasePlugin
             File.WriteAllText("timerData.txt", time + "\n");
 
             var players = GetAllPlayerControls();
+            if (players.Count < 1)
+            {
+                players = GetAllPlayerControls();
+            }
 
             // Remove player hats and visors
             foreach ( var player in players )
@@ -175,7 +179,10 @@ public partial class Plugin : BasePlugin
 
     public static List<PlayerControl> GetAllPlayerControls()
     {
-        return PlayerControl.AllPlayerControls;
+        var controls = PlayerControl.AllPlayerControls;
+        if (controls.Count == 0)
+            controls = PlayerControl.AllPlayerControls;
+        return controls;
     }
 
     public static List<GameData.PlayerInfo> GetAllPlayerData()
@@ -405,6 +412,10 @@ public partial class Plugin : BasePlugin
                 // Other players' color + position
                 big_output_string += "[";
                 var playerControls = GetAllPlayerControls().ToArray();
+
+                // retry if failed to grab player controls
+                if (playerControls.Length < 1)
+                    playerControls = GetAllPlayerControls().ToArray();
                 foreach (var playerControl in playerControls)
                 {
                     Vector2 p2 = playerControl.GetTruePosition();
@@ -454,8 +465,12 @@ public partial class Plugin : BasePlugin
                 big_output_string += "]";
                 big_output_string += "\n";
 
-                // Big write to prevent incomplete send data
-                File.WriteAllText(file, big_output_string);
+                // Do not pipe if grabbing player controls  failed
+                if (playerControls.Length >= 1)
+                {
+                    // Big write to prevent incomplete send data
+                    File.WriteAllText(file, big_output_string);
+                }
 
                 if (imposter)
                 {
@@ -490,7 +505,11 @@ public partial class Plugin : BasePlugin
                     else
                         imp_output_string += "-1";
 
-                    File.WriteAllText(file, imp_output_string);
+                    // Do not pipe if grabbing player controls  failed
+                    if (playerControls.Length >= 1)
+                    {
+                        File.WriteAllText(file, imp_output_string);
+                    }
                 }
             }
         }
