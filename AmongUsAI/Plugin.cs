@@ -249,7 +249,7 @@ public partial class Plugin : BasePlugin
             {
                 foreach (var player in GetAllPlayerData())
                 {
-                    if (player.PlayerName == ConfigName.Value)
+                    if (player.PlayerName == PlayerControl.LocalPlayer.Data.PlayerName)
                     {
                         writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName} = you");
                     }
