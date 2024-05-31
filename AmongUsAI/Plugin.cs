@@ -238,6 +238,27 @@ public partial class Plugin : BasePlugin
         {
             // Is in game?
             File.WriteAllText("inGameData.txt", "1");
+            CreateColorFile();
+        }
+
+        public static void CreateColorFile()
+        {
+            File.WriteAllText("inGameData.txt", "");
+            string filePath = "colors.txt";
+            using (StreamWriter writer = File.CreateText(filePath))
+            {
+                foreach (var player in GetAllPlayerData())
+                {
+                    if (player.PlayerName == ConfigName.Value)
+                    {
+                        writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName} = you");
+                    }
+                    else
+                    {
+                        writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName}");
+                    }
+                }
+            }
         }
     }
 
