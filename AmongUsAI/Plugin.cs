@@ -243,7 +243,7 @@ public partial class Plugin : BasePlugin
 
         public static void CreateColorFile()
         {
-            File.WriteAllText("inGameData.txt", "");
+            File.WriteAllText("colors.txt", "");
             string filePath = "colors.txt";
             using (StreamWriter writer = File.CreateText(filePath))
             {
