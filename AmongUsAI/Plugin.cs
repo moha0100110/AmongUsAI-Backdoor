@@ -238,12 +238,7 @@ public partial class Plugin : BasePlugin
         {
             // Is in game?
             File.WriteAllText("inGameData.txt", "1");
-            CreateColorFile();
-        }
 
-        public static void CreateColorFile()
-        {
-            File.WriteAllText("colors.txt", "");
             string filePath = "colors.txt";
             using (StreamWriter writer = File.CreateText(filePath))
             {
@@ -269,6 +264,7 @@ public partial class Plugin : BasePlugin
         {
             // Is in game?
             File.WriteAllText("inGameData.txt", "0");
+            File.WriteAllText("colors.txt", "");
         }
     }
 
@@ -577,24 +573,5 @@ public partial class Plugin : BasePlugin
 	        return MathF.Sqrt(dx* dx + dy* dy);
         }
 
-    }
-
-    public static void CreateColorFile()
-    {
-        string filePath = "colors.txt";
-        using (StreamWriter writer = File.CreateText(filePath))
-        {
-            foreach (var player in GetAllPlayerData())
-            {
-                if (player.PlayerName == ConfigName.Value)
-                {
-                    writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName} = you");
-                }
-                else
-                {
-                    writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName}");
-                }
-            }
-        }
     }
 }
