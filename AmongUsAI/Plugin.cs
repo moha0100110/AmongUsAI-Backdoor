@@ -14,8 +14,6 @@ using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Configuration;
 using Il2CppSystem.Reflection;
 using InnerNet;
-//using Reactor;
-//using Reactor.Utilities;
 using Rewired;
 using Sentry.Internal;
 using Sentry.Protocol;
@@ -30,12 +28,11 @@ namespace AmongUsAI;
 
 [BepInAutoPlugin]
 [BepInProcess("Among Us.exe")]
-//[BepInDependency(ReactorPlugin.Id)]
 public partial class Plugin : BasePlugin
 {
     public Harmony Harmony { get; } = new(Id);
 
-    public ConfigEntry<string> ConfigName { get; private set; }
+    public static ConfigEntry<string> ConfigName { get; private set; }
 
     public enum MapType : int
     {
@@ -559,6 +556,24 @@ public partial class Plugin : BasePlugin
 	        return MathF.Sqrt(dx* dx + dy* dy);
         }
 
-}
+    }
 
+    public static void CreateColorFile()
+    {
+        string filePath = "colors.txt";
+        using (StreamWriter writer = File.CreateText(filePath))
+        {
+            foreach (var player in GetAllPlayerData())
+            {
+                if (player.PlayerName == ConfigName.Value)
+                {
+                    writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName} = you");
+                }
+                else
+                {
+                    writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName}");
+                }
+            }
+        }
+    }
 }
