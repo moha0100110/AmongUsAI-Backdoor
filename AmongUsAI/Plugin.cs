@@ -12,6 +12,7 @@ using Il2CppInterop.Runtime.Runtime;
 using Il2CppSystem;
 using Il2CppSystem.Collections.Generic;
 using Il2CppSystem.Configuration;
+using Il2CppSystem.Data;
 using Il2CppSystem.Reflection;
 using InnerNet;
 using Rewired;
@@ -239,21 +240,19 @@ public partial class Plugin : BasePlugin
             // Is in game?
             File.WriteAllText("inGameData.txt", "1");
 
-            string filePath = "colors.txt";
-            using (StreamWriter writer = File.CreateText(filePath))
+            string textColor = "";
+            foreach (var player in GetAllPlayerData())
             {
-                foreach (var player in GetAllPlayerData())
+                if (player.PlayerName == PlayerControl.LocalPlayer.Data.PlayerName)
                 {
-                    if (player.PlayerName == PlayerControl.LocalPlayer.Data.PlayerName)
-                    {
-                        writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName} = you");
-                    }
-                    else
-                    {
-                        writer.WriteLine($"{TranslateColorName(player.ColorName)} = {player.PlayerName}");
-                    }
+                    textColor += $"{TranslateColorName(player.ColorName)} = {player.PlayerName} = you\n";
+                }
+                else
+                {
+                    textColor += $"{TranslateColorName(player.ColorName)} = {player.PlayerName}\n";
                 }
             }
+            File.WriteAllText("colors.txt", textColor);
         }
     }
 
@@ -290,7 +289,7 @@ public partial class Plugin : BasePlugin
                 big_output_string += __instance.GetTruePosition().x.ToString() + " " + __instance.GetTruePosition().y.ToString() + "\n";
 
                 // Role
-                big_output_string += imposter ? "impostor\n" : "crewmate\n";
+                big_output_string += $"{returnRole(PlayerControl.LocalPlayer.Data)}\n";
 
                 var currentTasks = __instance.myTasks.ToArray();
 
@@ -565,6 +564,11 @@ public partial class Plugin : BasePlugin
             RoleBehaviour role = playerInfo.Role;
 
             return role.TeamType == RoleTeamTypes.Impostor;
+        }
+
+        public static string returnRole(GameData.PlayerInfo playerInfo) {
+            if (playerInfo.Role == null) return "unknown";
+            return playerInfo.Role.ToString();
         }
 
         static float GetDistanceBetweenPoints_Unity(Vector2 p1, Vector2 p2)
