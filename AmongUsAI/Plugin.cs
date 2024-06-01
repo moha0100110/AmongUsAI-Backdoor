@@ -562,13 +562,13 @@ public partial class Plugin : BasePlugin
         {
             if (playerInfo.Role == null) return false;
             RoleBehaviour role = playerInfo.Role;
-
             return role.TeamType == RoleTeamTypes.Impostor;
         }
 
         public static string returnRole(GameData.PlayerInfo playerInfo) {
-            if (playerInfo.Role == null) return "unknown";
-            return playerInfo.Role.ToString();
+            string rawText = playerInfo.Role.ToString();
+            string[] result = rawText.Split("Role(Clone)");
+            return result[0].ToLower();
         }
 
         static float GetDistanceBetweenPoints_Unity(Vector2 p1, Vector2 p2)
